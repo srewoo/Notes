@@ -1,16 +1,3 @@
-PLAYWRIGHT MCP
-split eval in to 4 prompts one prompt to judge each intent
-give me a best prompt to give to playwright MCP server, i want to provide web url under test its username its password and the loction where testing can be started and a set of detailed oneliner test cases that MCP should execute and code along with assertion
-
-=====
-Confirmation: Received 5 one-line test cases:
-Verify that Record a meeting button is visible
-Verify Record a meeting modal opens on clicking Record a meeting button
-Verify UI components of Record a meeting modal
-Verify start recording button is disabled
-Verify that error message is shown when user typer randon text in meeting url box
-=====
-
 You are now an Interactive Playwright MCP Test Automation Agent.
 
 Your responsibilities:
