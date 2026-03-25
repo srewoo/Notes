@@ -29,14 +29,17 @@ You:
 
 ```
 PROJECT_NAME   = <your-project>
-LANGUAGE       = <TypeScript | JavaScript | Python | Go | Rust | …>
-FRAMEWORK      = <Next.js | FastAPI | Django | Express | NestJS | …>
-DATABASE       = <PostgreSQL | MySQL | MongoDB | Redis | DynamoDB | …>
-MESSAGE_QUEUE  = <Kafka | RabbitMQ | SQS | BullMQ | …>
+LANGUAGE       = TypeScript (strict mode, all projects)
+FRAMEWORK      = Next.js 15+ (App Router) | NestJS (backend microservices)
+DATABASE       = MSSQL (preferred, via mssql/tedious) | MongoDB (document store via Mongoose/Prisma)
+CACHE          = Redis (sessions, rate limits, pub/sub)
+MESSAGE_QUEUE  = Apache Kafka (all event streaming, usage tracking, inter-service comms)
 AI_PROVIDER    = <OpenAI | Anthropic | Google AI | Bedrock | local | …>
 CLOUD          = <AWS | GCP | Azure | self-hosted>
-CI_CD          = <GitHub Actions | GitLab CI | CircleCI | Jenkins | …>
-MONITORING     = <Datadog | Grafana | New Relic | Sentry | …>
+CI_CD          = GitHub Actions (preferred) | GitLab CI
+MONITORING     = Datadog | Grafana + Prometheus | Sentry (error tracking)
+CONTAINER      = Docker + Kubernetes (K8s) for all microservices
+API_GATEWAY    = Kong | AWS API Gateway | custom NestJS gateway
 ```
 
 ---
@@ -53,8 +56,17 @@ MONITORING     = <Datadog | Grafana | New Relic | Sentry | …>
 ### 1.2 Strategic Principles
 - **Architecture is a business decision.** Every design must tie to business outcomes — reduce risk, increase speed, unlock scale.
 - **Systems > Services > Code.** Optimise in this order: system design → interfaces → organisation → code.
+- **Microservices-first.** Every new capability is a separate, independently deployable service. No monoliths. No shared databases between services. Communicate via Kafka events or API contracts.
 - **Simplicity is a competitive advantage.** Complexity slows teams, increases cost, and reduces reliability. Ruthlessly eliminate accidental complexity.
 - **Cost is a first-class constraint.** Track cost per customer, per transaction, per AI request. Optimise compute, storage, tokens, and network.
+- **Every action is tracked.** All user actions, API calls, and system events must emit Kafka usage-tracking events for analytics, billing, and audit.
+
+### 1.3 Code Organisation Rules
+- **No file > 300 lines.** If a file exceeds 300 lines, refactor into smaller, focused modules.
+- **No function > 50 lines.** Extract sub-functions with clear names.
+- **No class > 200 lines.** Split responsibilities into separate classes/modules.
+- **One export per file** for services, controllers, and repositories. Group related utilities in a single file only if each is < 20 lines.
+- **Every code change must include unit tests.** No PR merges without corresponding test coverage.
 
 ---
 
@@ -69,11 +81,13 @@ MONITORING     = <Datadog | Grafana | New Relic | Sentry | …>
 - Template literals over concatenation. Destructuring where it improves clarity.
 - Optional chaining (`?.`) and nullish coalescing (`??`) over verbose null checks.
 
-### TypeScript (When Applicable)
-- Strict mode enabled (`strict: true` in tsconfig).
+### TypeScript (Primary — All Projects)
+- Strict mode enabled (`strict: true` in tsconfig). **TypeScript is mandatory, not optional.**
 - Prefer `interface` for object shapes, `type` for unions/intersections.
 - Never use `any` — use `unknown` and narrow with type guards.
 - Use `readonly` for immutable data. Discriminated unions for state machines. Constrained generics.
+- Use `zod` for runtime validation of all external inputs (API requests, Kafka messages, env vars).
+- Barrel exports (`index.ts`) per module for clean imports.
 
 ### Python (When Applicable)
 - Python 3.10+ with type hints on all signatures.
@@ -84,28 +98,66 @@ MONITORING     = <Datadog | Grafana | New Relic | Sentry | …>
 
 ## 3. ARCHITECTURE PATTERNS
 
-### 3.1 Project Structure
+### 3.1 Microservices Monorepo Structure
 
 ```
-project-root/
+project-root/                        # Monorepo (Turborepo / Nx)
+├── apps/
+│   ├── web/                         # Next.js 15+ frontend (App Router)
+│   │   ├── app/                     # App Router pages, layouts, server components
+│   │   ├── components/              # Atomic Design: atoms/molecules/organisms
+│   │   ├── hooks/                   # Custom React hooks
+│   │   ├── lib/                     # Client utilities, API clients
+│   │   └── styles/                  # Tailwind config, global styles
+│   ├── api-gateway/                 # NestJS API Gateway (routing, auth, rate limiting)
+│   ├── user-service/                # Microservice: user management
+│   ├── order-service/               # Microservice: orders/transactions
+│   ├── notification-service/        # Microservice: email, SMS, push
+│   ├── analytics-service/           # Microservice: Kafka consumer for usage tracking
+│   └── <domain>-service/            # One service per bounded context
+├── packages/
+│   ├── shared-types/                # Shared TypeScript interfaces, Zod schemas
+│   ├── shared-utils/                # Pure utility functions (no side effects)
+│   ├── kafka-client/                # Shared Kafka producer/consumer wrapper
+│   ├── db-client/                   # Shared MSSQL + MongoDB connection factories
+│   ├── logger/                      # Shared structured logger (Pino)
+│   └── testing/                     # Shared test utilities, fixtures, factories
+├── infrastructure/
+│   ├── docker/                      # Dockerfiles per service
+│   ├── k8s/                         # Kubernetes manifests / Helm charts
+│   ├── terraform/                   # Infrastructure as Code
+│   └── kafka/                       # Topic definitions, schema registry configs
+├── docs/                            # Architecture docs, ADRs, runbooks
+├── scripts/                         # Operational scripts (migrations, seeds)
+├── turbo.json                       # Turborepo pipeline config
+├── docker-compose.yml               # Local dev environment
+└── .github/workflows/               # CI/CD per service
+```
+
+**Each microservice follows this internal structure:**
+
+```
+<service-name>/
 ├── src/
-│   ├── config/          # Configuration loaders, env validation
-│   ├── controllers/     # Request handlers (thin — delegate to services)
-│   ├── services/        # Business logic layer
-│   ├── models/          # Data models, schemas, entities
-│   ├── repositories/    # Database access layer
-│   ├── middleware/       # Auth, logging, rate limiting, error handling
-│   ├── utils/           # Pure utility functions (no side effects)
-│   ├── jobs/            # Background jobs, queue consumers
-│   ├── events/          # Event emitters, handlers, pub-sub
-│   └── integrations/    # Third-party API clients
+│   ├── config/              # Env validation (Zod), service config
+│   ├── controllers/         # Request handlers (thin — delegate to services)
+│   ├── services/            # Business logic layer
+│   ├── models/              # Data models, schemas, entities
+│   ├── repositories/        # Database access (MSSQL or MongoDB)
+│   ├── middleware/           # Auth, logging, rate limiting, error handling
+│   ├── events/
+│   │   ├── producers/       # Kafka event producers
+│   │   ├── consumers/       # Kafka event consumers
+│   │   └── schemas/         # Event schemas (Zod validation)
+│   ├── jobs/                # Background jobs, scheduled tasks
+│   └── integrations/        # External API clients
 ├── test/
-│   ├── unit/
-│   ├── integration/
-│   └── e2e/
-├── scripts/             # Operational scripts (migrations, seeds, one-offs)
-├── docs/                # Architecture docs, ADRs, runbooks
-└── config/              # Environment configs, feature flags
+│   ├── unit/                # Unit tests (mandatory for all business logic)
+│   ├── integration/         # DB + Kafka integration tests
+│   └── e2e/                 # End-to-end API tests
+├── Dockerfile
+├── package.json
+└── tsconfig.json
 ```
 
 ### 3.2 Layered Architecture
@@ -118,34 +170,70 @@ project-root/
 | Integration | External API communication | HTTP clients, SDKs | Business logic |
 | Utility | Pure functions, transformations | Nothing with side effects | Any layer |
 
-### 3.3 System Architecture Principles
+### 3.3 Microservices Architecture Principles
 
 | Layer | Contains | Examples |
 |---|---|---|
-| **Experience** | User-facing interfaces | Web, mobile, APIs, CLIs |
-| **Product Domain** | Business logic, orchestration | Domain services, workflows, rules engines |
+| **Experience** | User-facing interfaces | Next.js web app, mobile, CLIs |
+| **API Gateway** | Routing, auth, rate limiting, aggregation | NestJS gateway, Kong, AWS API GW |
+| **Product Domain** | Business logic microservices | User, Order, Payment, Notification services |
+| **Event Bus** | Async communication, usage tracking | Apache Kafka (all inter-service events) |
 | **Platform** | Shared capabilities | Identity, billing, observability, messaging |
-| **Infrastructure** | Compute, networking, storage | Cloud services, Kubernetes, CDN, databases |
+| **Infrastructure** | Compute, networking, storage | Docker, Kubernetes, CDN, MSSQL, MongoDB, Redis |
 
-- **Platform-first:** Invest in shared infrastructure and golden paths so teams move fast without reinventing.
-- **Bounded contexts:** Each domain owns its data, APIs, and SLAs. No shared databases. Communicate via events or API contracts.
-- **Evolutionary architecture:** Evolve incrementally. Backward compatibility. Feature flags and versioned APIs. Design for change.
+**Microservices Rules:**
+- **One service per bounded context.** Each service owns its database — no shared DB.
+- **Communicate via Kafka events** for async workflows. REST/gRPC for sync queries only.
+- **API Gateway** as the single entry point for all external traffic. Services never exposed directly.
+- **Independent deployment.** Each service has its own CI/CD pipeline, Dockerfile, and K8s deployment.
+- **Service mesh** for mTLS, retries, and observability between services.
+- **Backward compatibility.** Versioned APIs (`/api/v1/`). Never break existing consumers.
+- **Feature flags** for risky changes — deploy dark, enable gradually.
+
+**Anti-Patterns to Avoid:**
+- Distributed monolith (services tightly coupled via sync calls).
+- Shared database between services.
+- Chatty inter-service communication (use event-driven instead).
+- Services > 10K lines of code — split further.
 
 ### 3.4 Dependency Injection & Configuration
-- Pass dependencies as constructor/function arguments. Factory functions for testability.
+- Use **NestJS DI container** for backend services. Pass dependencies as constructor arguments.
 - Never import singletons with side effects at module level.
-- Load all config at startup via validated config module (Joi, Zod, ajv).
+- Load all config at startup via **Zod-validated** config module (`packages/shared-utils/config`).
 - Environment variables for secrets. Never hardcode URLs, credentials, or feature flags.
 - Use `.env.example` as documentation — never commit `.env` files.
+- **Shared packages** (`packages/*`) for cross-cutting concerns: logger, Kafka client, DB client, types.
+
+### 3.5 Service Size Guidelines
+- **Max 5K lines** per microservice `src/` directory. If larger, split into two services.
+- **Max 300 lines per file.** Max 50 lines per function. Max 200 lines per class.
+- **Max 10 dependencies** (imported packages) per file. If more, the file does too much.
+- Each service should have a clear, one-sentence description of its bounded context.
 
 ---
 
 ## 4. FRONTEND ENGINEERING
 
-### 4.1 Component Architecture
+### 4.1 Modern UI Stack (Next.js 15+ App Router)
+
+**Primary stack:**
+- **Next.js 15+** with App Router (not Pages Router). React 19+ with Server Components.
+- **Tailwind CSS v4** for styling. **shadcn/ui** for pre-built accessible components.
+- **TanStack Query v5** for server state. **Zustand** for client state.
+- **React Hook Form + Zod** for form validation.
+- **Framer Motion** for animations. **Recharts** or **Tremor** for data visualisation.
+
+**Server Components First:**
+- Default to React Server Components (RSC) — they run on the server, ship zero JS.
+- Use `'use client'` directive only when the component needs interactivity (state, effects, browser APIs).
+- Data fetching happens in Server Components via `async` functions — no `useEffect` for initial data.
+- Use `loading.tsx`, `error.tsx`, and `not-found.tsx` conventions for each route segment.
+
+### 4.1.1 Component Architecture
 - **Atomic Design:** atoms → molecules → organisms → templates → pages.
-- **Single Responsibility.** Container/Presenter split. Composition over inheritance.
-- **Data fetching:** Co-locate queries with components. Use loading/error/empty states everywhere.
+- **Single Responsibility.** Server/Client component split. Composition over inheritance.
+- **Data fetching:** Server Components fetch directly. Client Components use TanStack Query.
+- **Co-location:** Keep components, styles, tests, and types together per feature.
 
 ### 4.2 State Management
 
@@ -153,38 +241,45 @@ project-root/
 |---|---|---|
 | Component-local | `useState`, `useReducer` | UI toggles, form inputs |
 | Shared (subtree) | Context + `useReducer` | Theme, locale, auth status |
-| Server state | React Query / SWR / TanStack Query | API data with caching, refetch, optimistic updates |
-| Global complex | Zustand / Redux Toolkit / Pinia | Multi-step workflows, cross-cutting state |
+| Server state | TanStack Query v5 | API data with caching, refetch, optimistic updates |
+| Global complex | Zustand | Multi-step workflows, cross-cutting client state |
+| URL state | `nuqs` or `useSearchParams` | Filters, pagination, sort — shareable via URL |
 
-**Rules:** Never duplicate server state in client stores. Derive computed values — don't store them. Keep state close to where it's used. Avoid prop drilling beyond 2 levels.
+**Rules:** Never duplicate server state in client stores. Derive computed values — don't store them. Keep state close to where it's used. Avoid prop drilling beyond 2 levels. Prefer URL state for anything the user might share or bookmark.
 
 ### 4.3 Performance
-- **Code splitting:** Lazy-load routes and heavy components (`React.lazy` + `Suspense`, dynamic `import()`).
-- **Virtualization:** Lists > 100 items → `react-window`, `react-virtuoso`, or TanStack Virtual.
-- **Image optimization:** `next/image`, WebP/AVIF, lazy loading. Always set width/height.
+- **Server Components** — zero-JS by default. Only ship client JS for interactive parts.
+- **Streaming & Suspense:** Use `<Suspense>` boundaries for progressive loading. `loading.tsx` per route.
+- **Parallel data fetching:** Fetch data in parallel in Server Components, not waterfall.
+- **Image optimization:** `next/image` with automatic WebP/AVIF. Always set width/height.
 - **Core Web Vitals:** LCP < 2.5s, INP < 200ms, CLS < 0.1.
+- **Virtualization:** Lists > 100 items → TanStack Virtual or `react-virtuoso`.
+- **Bundle analysis:** `@next/bundle-analyzer` before releases. Flag any dependency > 50 KB.
 - **Debounce/throttle** expensive operations (search, resize, scroll).
-- **Bundle analysis:** Run `webpack-bundle-analyzer` or `vite-bundle-visualizer` before releases.
 
 ### 4.4 Common Pitfalls
+- Using `'use client'` unnecessarily — keep components as Server Components when possible.
 - Mutating state directly (especially nested objects/arrays).
-- Fetching in `useEffect` without abort/cleanup.
+- Fetching in `useEffect` when Server Components or TanStack Query would suffice.
 - Array index as `key` in dynamic lists.
 - Missing dimensions on images/media causing layout shifts.
-- Hardcoding environment URLs.
+- Hardcoding environment URLs — use `env.mjs` with Zod validation.
+- Not handling loading, error, and empty states for every data-fetching boundary.
 
 ### 4.5 Accessibility
-- Semantic HTML first — not `<div>` with click handlers.
+- Semantic HTML first — not `<div>` with click handlers. Use shadcn/ui components (built on Radix — accessible by default).
 - ARIA only when semantic HTML is insufficient. Keyboard navigation for all interactive elements.
-- Color contrast ≥ 4.5:1 (AA). All images need `alt` text. Focus management on route changes.
+- Color contrast >= 4.5:1 (AA). All images need `alt` text. Focus management on route changes.
 
 ### 4.6 CSS / Styling
-- CSS Modules, Tailwind, or CSS-in-JS — pick one per project. Mobile-first responsive.
-- CSS custom properties for theming. No `!important`. No inline styles except dynamic values.
+- **Tailwind CSS v4** as the single styling solution. Mobile-first responsive.
+- CSS custom properties for theming (dark mode via `class` strategy). No `!important`. No inline styles except dynamic values.
+- Use `cn()` utility (clsx + tailwind-merge) for conditional classes.
 
 ### 4.7 Testing (Frontend)
-- **Unit:** Hooks, utilities, pure logic. **Component:** Testing Library — test behavior, not implementation.
-- **E2E:** Playwright or Cypress for critical flows. Never assert on state directly.
+- **Unit:** Hooks, utilities, pure logic with Vitest. **Component:** Testing Library — test behavior, not implementation.
+- **E2E:** Playwright for critical flows. Never assert on state directly.
+- **Visual regression:** Chromatic or Playwright visual comparisons for component libraries.
 
 ---
 
@@ -204,16 +299,24 @@ project-root/
 
 ### 5.2 Error Handling
 
-```javascript
-class AppError extends Error {
-  constructor(message, statusCode, errorCode, details = {}) {
+```typescript
+// packages/shared-utils/src/errors/app-error.ts
+export class AppError extends Error {
+  constructor(
+    message: string,
+    public readonly statusCode: number,
+    public readonly errorCode: string,
+    public readonly details: Record<string, unknown> = {},
+    public readonly isOperational = true,
+  ) {
     super(message);
-    this.statusCode = statusCode;
-    this.errorCode = errorCode;
-    this.details = details;
-    this.isOperational = true;
+    this.name = this.constructor.name;
+    Error.captureStackTrace(this, this.constructor);
   }
 }
+
+// NestJS: Use exception filters for consistent error responses
+// Each microservice registers a global AppExceptionFilter
 ```
 
 - Distinguish **operational** errors (bad input, not found) from **programmer** errors (null ref, type errors).
@@ -256,32 +359,83 @@ class AppError extends Error {
 
 ## 6. DATABASE ENGINEERING
 
-### 6.1 Schema Design
-- Normalize to 3NF, then selectively denormalize for read performance with documentation.
-- Every table: `id` (PK), `created_at`, `updated_at`. UUIDs for distributed, auto-increment for single-node.
-- Soft deletes (`deleted_at`). Foreign key constraints. Indexes on all `WHERE`/`JOIN`/`ORDER BY` columns.
+### 6.0 Database Strategy
 
-### 6.2 Query Performance
-- **EXPLAIN (ANALYZE, BUFFERS)** every new query. Avoid `SELECT *`.
-- Covering indexes for frequent reads. Batch inserts/updates. Connection pooling.
-- Read replicas for heavy reads. Partition large tables (>50M rows).
+| Use Case | Database | Why |
+|---|---|---|
+| **Transactional data** (users, orders, billing, inventory) | **MSSQL** (preferred) | ACID compliance, strong schema enforcement, stored procedures, enterprise support |
+| **Document/flexible data** (logs, configs, content, analytics aggregates) | **MongoDB** | Schema flexibility, horizontal scaling, JSON-native, fast reads |
+| **Caching, sessions, rate limits** | **Redis** | Sub-ms latency, TTL support, pub/sub |
+| **Search** | **Elasticsearch / Meilisearch** | Full-text search, faceted filtering |
+
+**Rule: Each microservice owns its own database.** No shared databases between services. Cross-service data access via Kafka events or API calls only.
+
+### 6.1 MSSQL (Preferred — Transactional Data)
+
+**Schema Design:**
+- Normalize to 3NF, then selectively denormalize for read performance with documentation.
+- Every table: `Id` (PK, `UNIQUEIDENTIFIER` default `NEWSEQUENTIALID()` for distributed), `CreatedAt`, `UpdatedAt`.
+- Soft deletes (`DeletedAt` nullable datetime). Foreign key constraints. Indexes on all `WHERE`/`JOIN`/`ORDER BY` columns.
+- Use **PascalCase** for table and column names (MSSQL convention).
+- Schemas for domain separation: `dbo.Users`, `billing.Invoices`, `orders.OrderItems`.
+
+**Connection & ORM:**
+- Use **Prisma** (preferred) or **TypeORM** with `mssql`/`tedious` driver.
+- Connection pooling via Prisma connection pool or `mssql` built-in pool (`min: 5, max: 30`).
+- Always use parameterized queries — never interpolate SQL strings.
+
+**Query Performance:**
+- **SET STATISTICS IO ON** + **Actual Execution Plan** for every new query before shipping.
+- Avoid `SELECT *` — select only needed columns.
+- Covering indexes (INCLUDE columns) for frequent read patterns.
+- Use **OFFSET-FETCH** for pagination: `ORDER BY Id OFFSET @skip ROWS FETCH NEXT @take ROWS ONLY`.
+- Batch inserts via `INSERT INTO ... VALUES` with multiple rows or bulk copy (`mssql.Table`).
+- Read replicas (Always-On Availability Groups) for heavy read workloads.
+- Partition large tables (>50M rows) by date range.
 - Avoid N+1: use joins, eager loading, or DataLoader. **Never do I/O inside a transaction.**
 
-### 6.3 Migrations
-- Versioned, forward-only, non-destructive, zero-downtime.
+**MSSQL Tuning:**
+- `max degree of parallelism`: set to number of CPU cores (or half for OLTP).
+- `cost threshold for parallelism`: raise to 25–50 for OLTP workloads.
+- Monitor index fragmentation — rebuild > 30%, reorganize 10–30%.
+- Use Query Store for tracking query plan regressions.
+- TempDB: multiple data files (1 per CPU core, up to 8). Pre-size to avoid autogrowth.
+
+**Migrations:**
+- Use **Prisma Migrate** or **Flyway** for versioned, forward-only migrations.
 - Never modify a deployed migration. Never rename a column in one step.
-- Pattern: add nullable → deploy → backfill → constraint → remove old.
+- Pattern: add nullable column → deploy code → backfill data → add constraint → remove old column.
 - Test migrations against production-sized datasets before deploying.
+- **Always wrap DDL in transactions** where supported.
 
-### 6.4 PostgreSQL Tuning
-- `shared_buffers`: ~25% of total RAM. `work_mem`: tune per sort/hash operation.
-- Monitor table and index bloat. Configure autovacuum aggressively for high-write tables.
+### 6.2 MongoDB (Document Store)
 
-### 6.5 NoSQL
+**When to use:** Flexible schemas, content management, event logs, analytics aggregates, configuration data.
 
-**MongoDB:** Schema around access patterns. Index every query. No unbounded array growth.
-**Redis:** Always set TTLs. Appropriate data structures. `maxmemory-policy`. Never `KEYS *` — use `SCAN`. Monitor memory fragmentation (< 1.5).
-**DynamoDB:** Single-table patterns. Composite sort keys. Avoid hot partitions. GSIs sparingly.
+**Schema Design:**
+- Design schemas around **access patterns**, not normalization.
+- Embed related data that's always read together. Reference data that's shared across documents.
+- Index every query pattern — verify with `.explain("executionStats")`.
+- No unbounded array growth in documents (max 16 MB document size).
+- Use **camelCase** for field names.
+
+**Connection:**
+- Use **Mongoose** (with TypeScript schemas) or **Prisma** with MongoDB connector.
+- Connection string with `retryWrites=true&w=majority`.
+- Connection pooling: `maxPoolSize: 50` (tune per service).
+
+**Performance:**
+- Compound indexes for multi-field queries. Sparse indexes for optional fields.
+- Use `$lookup` sparingly — prefer embedding for read-heavy patterns.
+- Aggregation pipelines for complex queries — add `$match` early to reduce pipeline data.
+- Use Change Streams for real-time data sync to Kafka.
+
+### 6.3 Redis (Cache & Sessions)
+
+- Always set TTLs on cache keys. `maxmemory-policy: allkeys-lru` for cache, `noeviction` for queues.
+- Appropriate data structures (Hash for objects, Sorted Set for leaderboards, Streams for event logs).
+- Never `KEYS *` — use `SCAN`. Monitor memory fragmentation (< 1.5).
+- Use Redis Cluster for horizontal scaling. Sentinel for HA in single-node setups.
 
 ### 6.6 Caching Strategy
 
@@ -302,54 +456,114 @@ class AppError extends Error {
 
 ---
 
-## 7. MESSAGE QUEUES & EVENT-DRIVEN ARCHITECTURE
+## 7. KAFKA EVENT-DRIVEN ARCHITECTURE
 
-### 7.1 Queue Patterns
+> **Apache Kafka is the backbone of all inter-service communication and usage tracking.** Every microservice produces and consumes Kafka events.
 
-| Pattern | Use Case | Tools |
-|---|---|---|
-| Work Queue | Distribute tasks | RabbitMQ, SQS, BullMQ |
-| Pub/Sub | Broadcast events | Kafka, SNS, Redis Pub/Sub |
-| Dead Letter Queue | Capture failed messages | Built-in to most brokers |
-| Delay/Priority Queue | Scheduled or prioritised processing | BullMQ, SQS, RabbitMQ |
+### 7.1 Kafka Topic Strategy
 
-### 7.2 Queue Rules
-- **Idempotent consumers.** ACK only after successful processing.
-- **DLQ** for every queue. Alert on DLQ depth.
-- **Message schemas:** Include `messageId`, `timestamp`, `version`, `correlationId`.
-- **Backpressure:** Concurrency limits. Start at 1, increase with load testing.
-- **Poison pill detection:** After N retries (3–5) → DLQ + alert. Never retry indefinitely.
-- **Graceful shutdown:** Drain in-flight messages before exit.
+| Topic Category | Naming Convention | Retention | Examples |
+|---|---|---|---|
+| **Domain Events** | `<domain>.<entity>.<action>` | 7 days | `order.order.completed`, `user.account.created` |
+| **Usage Tracking** | `tracking.<service>.<action>` | 30 days | `tracking.api.request`, `tracking.user.action` |
+| **Commands** | `cmd.<service>.<action>` | 3 days | `cmd.notification.send-email` |
+| **Dead Letter** | `dlq.<original-topic>` | 14 days | `dlq.order.order.completed` |
+| **System** | `system.<type>` | 7 days | `system.health`, `system.config-change` |
 
-### 7.3 Event Design
+**Topic Rules:**
+- 3+ partitions per topic (scale consumers independently).
+- Replication factor >= 3 in production.
+- Use `key` for ordering guarantees (e.g., `userId` or `orderId`).
+- Schema Registry (Confluent or Redpanda) with Avro or JSON Schema for all topics.
 
-```javascript
-const event = {
-  eventId: "uuid-v4",
-  eventType: "order.completed",
-  version: "1.0",
-  timestamp: "2026-02-18T10:30:00Z",
-  source: "order-service",
-  correlationId: "trace-uuid",
-  data: { /* event-specific payload */ },
-  metadata: { userId: "...", tenantId: "..." }
-};
+### 7.2 Built-In Usage Tracking (Mandatory)
+
+**Every microservice MUST emit usage tracking events to Kafka.** This is non-negotiable for analytics, billing, auditing, and cost attribution.
+
+```typescript
+// Shared usage event schema (packages/shared-types/src/events/usage.ts)
+interface UsageEvent {
+  eventId: string;              // UUID v4
+  eventType: 'tracking.api.request' | 'tracking.user.action' | 'tracking.feature.used';
+  version: '1.0';
+  timestamp: string;            // ISO 8601
+  source: string;               // service name
+  correlationId: string;        // trace ID
+  data: {
+    action: string;             // e.g., 'user.login', 'order.create', 'report.export'
+    resource: string;           // e.g., '/api/v1/orders'
+    method: string;             // HTTP method or 'KAFKA' or 'CRON'
+    statusCode?: number;
+    durationMs: number;
+    requestSize?: number;
+    responseSize?: number;
+    tokensUsed?: number;        // for AI/LLM calls
+    costEstimate?: number;      // estimated cost in USD
+  };
+  metadata: {
+    userId?: string;
+    tenantId?: string;
+    sessionId?: string;
+    userAgent?: string;
+    ipHash?: string;            // hashed IP, never raw
+    environment: string;        // 'production' | 'staging' | 'development'
+  };
+}
 ```
 
-- Past tense (`order.completed`). Include enough data for consumers to process independently.
-- Schema registry (Avro, Protobuf, JSON Schema) for contract enforcement.
+**Implementation:**
+- **Middleware-level:** Add Kafka usage producer to the API Gateway middleware chain. Every request/response automatically emits a usage event.
+- **Service-level:** Each service emits domain-specific usage events (e.g., AI token usage, file uploads, report generations).
+- **Analytics Service:** Dedicated Kafka consumer that aggregates usage events into MSSQL (for billing) and MongoDB (for dashboards).
+- **No blocking:** Usage events are fire-and-forget (`acks: 0` or `acks: 1`). Never block request processing for tracking.
 
-### 7.4 Advanced Patterns
+### 7.3 Domain Event Design
+
+```typescript
+interface DomainEvent<T = Record<string, unknown>> {
+  eventId: string;              // UUID v4
+  eventType: string;            // e.g., 'order.completed'
+  version: string;              // e.g., '1.0'
+  timestamp: string;            // ISO 8601
+  source: string;               // producing service name
+  correlationId: string;        // trace/request ID
+  data: T;                      // event-specific typed payload
+  metadata: {
+    userId?: string;
+    tenantId?: string;
+    causationId?: string;       // ID of the event/command that caused this
+  };
+}
+```
+
+- Past tense (`order.completed`, not `order.complete`). Events are immutable facts.
+- Include enough data for consumers to process independently — no callbacks to producer.
+- Validate all events with Zod schemas before producing AND after consuming.
+
+### 7.4 Kafka Consumer/Producer Rules
+- **Idempotent consumers.** Commit offset only after successful processing.
+- **DLQ** for every consumer group. Alert on DLQ depth > 0.
+- **Backpressure:** `maxInFlightRequests: 1` to start. Increase with load testing.
+- **Poison pill detection:** After 3–5 retries → DLQ + alert. Never retry indefinitely.
+- **Graceful shutdown:** `consumer.disconnect()` + drain in-flight messages before process exit.
+- **Exactly-once semantics:** Enable idempotent producer (`enable.idempotence: true`) and transactional writes when needed.
+- **Consumer group per service:** Each microservice uses its own consumer group ID.
+
+### 7.5 Advanced Patterns
 
 | Pattern | When to Use | Key Concern |
 |---|---|---|
 | **Event Sourcing** | Full audit trail; rebuild state from events | Storage grows; snapshots needed |
-| **CQRS** | Read/write models diverge significantly | Eventual consistency |
-| **Outbox Pattern** | Guarantee event pub alongside DB write | Requires polling or CDC |
-| **Saga** | Distributed transactions across services | Compensating actions for rollback |
+| **CQRS** | Read/write models diverge significantly | Eventual consistency between read/write |
+| **Outbox Pattern** | Guarantee event pub alongside DB write (MSSQL → Kafka) | Use Debezium CDC or polling |
+| **Saga** | Distributed transactions across microservices | Compensating actions for rollback |
+| **Change Data Capture** | Sync MSSQL/MongoDB changes to Kafka | Debezium connectors |
 
-### 7.5 Queue Observability
-Track: **lag**, **processing time**, **DLQ depth**. Trace IDs must flow through message envelopes.
+### 7.6 Kafka Observability
+- Track: **consumer lag** (per partition), **processing time**, **DLQ depth**, **produce latency**.
+- Alert on: lag > 10K messages, DLQ non-empty, consumer group rebalance storms.
+- **Trace IDs must flow through Kafka message headers** (`correlationId` header).
+- Use **Kafka UI** (Conduktor, Redpanda Console, or AKHQ) for topic inspection in dev/staging.
 
 ---
 
@@ -400,45 +614,68 @@ Track: **lag**, **processing time**, **DLQ depth**. Trace IDs must flow through 
 
 ---
 
-## 9. TESTING
+## 9. TESTING (MANDATORY — NO EXCEPTIONS)
+
+> **Every code change MUST include unit tests.** No PR merges without tests. No exceptions. Tests are not optional — they are part of the definition of done.
 
 ### 9.1 Test Pyramid
-Unit (business logic, utilities) → Integration (API contracts, DB queries) → E2E (critical journeys). Most tests at the bottom.
+Unit (business logic, utilities, services) → Integration (API contracts, DB queries, Kafka consumers) → E2E (critical journeys). Most tests at the bottom.
 
 ### 9.2 Test Types
 
-| Type | Scope | Tools |
-|---|---|---|
-| Unit | Pure functions, business logic | Jest, Vitest, pytest |
-| Integration | Service + DB, service + queue | Supertest, testcontainers |
-| Contract | API contracts between services | Pact, OpenAPI validation |
-| E2E | Critical user journeys | Playwright, Cypress |
-| Performance | Load/stress before releases | k6, Locust, Artillery |
-| AI Evaluation | LLM output quality, prompt regression | RAGAS, DeepEval |
+| Type | Scope | Tools | When |
+|---|---|---|---|
+| Unit | Pure functions, services, utilities | **Vitest** (preferred), Jest | **Every PR** — mandatory |
+| Integration | Service + MSSQL/MongoDB, service + Kafka | Supertest, testcontainers | Every PR with DB/event changes |
+| Contract | API contracts between microservices | Pact, OpenAPI validation | Every API change |
+| E2E | Critical user journeys | **Playwright** | Every release, critical flow changes |
+| Performance | Load/stress before releases | k6, Artillery | Before major releases |
+| AI Evaluation | LLM output quality, prompt regression | RAGAS, DeepEval | Every prompt change |
 
 ### 9.3 Test Rules
-- All tests in `test/`. Naming: `*.test.js` (or `.test.ts`, `.spec.js`).
+- All tests in `test/` directory per service. Naming: `*.test.ts` (or `.spec.ts`).
 - **No mock data, no fake functions, no hardcoded responses** — use actual service layers or approved stubs.
-- No `console.log` in tests. Integration tests clean up created resources.
+- No `console.log` in tests. Integration tests clean up created resources (DB records, Kafka messages).
 - Every test independent — no shared mutable state. Test behaviour, not implementation.
+- **Use `testcontainers`** for integration tests with MSSQL, MongoDB, Kafka, and Redis.
+- **CI gate:** Pipeline fails if unit test coverage drops below thresholds.
 
 ### 9.4 Naming Convention
 ```
-given_[state]_when_[action]_then_[expectation]
-  e.g. given_empty_cart_when_checkout_called_then_returns_400
+describe('[ServiceName]')
+  it('should [expected behavior] when [condition]')
+
+Examples:
+  it('should return 400 when cart is empty on checkout')
+  it('should emit order.completed event when payment succeeds')
+  it('should retry 3 times then send to DLQ on consumer failure')
 ```
 
-### 9.5 Coverage Targets
+### 9.5 Coverage Targets (Enforced in CI)
 
 | Layer | Target | Focus |
 |---|---|---|
-| Utilities / Helpers | 95%+ | All inputs, edge cases, error paths |
-| Service Layer | 85%+ | Business rules, validation, error handling |
-| API / Controller | 80%+ | Request parsing, response format, auth |
-| E2E | Critical flows | User registration, checkout, auth |
+| Utilities / Helpers | **95%+** | All inputs, edge cases, error paths |
+| Service Layer | **90%+** | Business rules, validation, error handling, Kafka event emission |
+| API / Controller | **85%+** | Request parsing, response format, auth, input validation |
+| Repository | **80%+** | Query correctness, error handling |
+| Kafka Consumers | **85%+** | Message processing, idempotency, DLQ routing |
+| E2E | Critical flows | User registration, checkout, auth, core workflows |
 
 ### 9.6 What to Test
-Positive cases, negative cases (invalid inputs, unauthorized), edge cases (null, empty, max-length, concurrent), error paths (network failures, timeouts), boundary values (zero, negative, max int, Unicode).
+- **Positive cases:** Happy path with valid inputs.
+- **Negative cases:** Invalid inputs, missing fields, unauthorized access.
+- **Edge cases:** Empty arrays, null values, max-length strings, concurrent operations.
+- **Error paths:** Network failures, timeout handling, partial failures, Kafka unavailable.
+- **Boundary values:** Zero, negative numbers, max int, empty strings, Unicode, SQL injection attempts.
+- **Kafka events:** Verify correct events are produced with correct schemas. Test consumer idempotency.
+- **Database:** Verify MSSQL stored procedures, MongoDB aggregations, index usage.
+
+### 9.7 Test Utilities (packages/testing/)
+- **Factory functions:** Create test entities with sensible defaults (`createTestUser()`, `createTestOrder()`).
+- **Kafka test helpers:** In-memory Kafka mock or testcontainers Kafka for integration tests.
+- **DB test helpers:** Transaction-wrapped tests that rollback after each test (MSSQL). Drop collections (MongoDB).
+- **API test helpers:** Authenticated request builders with JWT token factories.
 
 ---
 
@@ -613,13 +850,30 @@ Types: `feat`, `fix`, `refactor`, `test`, `docs`, `chore`, `perf`, `ci`
 
 ## 15. CI/CD & DEPLOYMENT
 
-### 15.1 Pipeline
-1. **Lint** + type check → 2. **Unit tests** → 3. **Build** → 4. **Integration tests** → 5. **Security scan** → 6. **Deploy staging** + smoke tests → 7. **E2E** → 8. **Deploy production** (blue/green or canary) → 9. **Post-deploy** metrics watch (10 min, auto-rollback on spike).
+### 15.1 Pipeline (Per Microservice)
+
+Each microservice has its **own CI/CD pipeline** triggered by changes in its directory:
+
+1. **Lint** + `tsc --noEmit` type check
+2. **Unit tests** (Vitest) — fail if coverage drops below threshold
+3. **Build** Docker image
+4. **Integration tests** (testcontainers: MSSQL, MongoDB, Kafka, Redis)
+5. **Security scan** (secrets detection, `npm audit`, container scan with Trivy)
+6. **Push image** to container registry (tagged with commit SHA + semver)
+7. **Deploy staging** (K8s) + smoke tests + contract tests
+8. **E2E tests** (Playwright against staging)
+9. **Deploy production** (blue/green or canary via K8s rolling update)
+10. **Post-deploy** metrics watch (10 min, auto-rollback on error rate spike)
+
+**Monorepo CI optimisation:** Use Turborepo `--filter` to only build/test affected services and their dependents.
 
 ### 15.2 Deployment Safety
-- Health checks verify all critical deps (DB, cache, queues). Rollback plan documented.
-- Feature flags for risky changes — deploy dark, enable gradually. Canary: 5% → 25% → 100%.
+- Health checks verify all critical deps (MSSQL, MongoDB, Redis, Kafka). Rollback plan documented.
+- Feature flags (LaunchDarkly, Unleash, or custom) for risky changes — deploy dark, enable gradually.
+- Canary deployments: 5% → 25% → 100% with automated metric gates.
+- **Each microservice is independently deployable.** Never require coordinated multi-service deploys.
 - Never deploy on Fridays unless critical hotfix.
+- Database migrations run as a separate pipeline step BEFORE service deployment.
 
 ---
 
@@ -689,12 +943,12 @@ Reproduce first. Read error messages and stack traces carefully. Check recent ch
 
 | Phase | Priority | Architecture |
 |---|---|---|
-| **Survival** | Speed > perfection | Monolith, simple stack |
-| **Product-Market Fit** | Stability, learning | Modular monolith, basic observability |
-| **Scale** | Reliability, autonomy | Service extraction, SLOs |
-| **Platform** | Efficiency, leverage | Golden paths, self-service infra |
+| **Survival** | Speed > perfection | 2–3 focused microservices, shared DB acceptable temporarily |
+| **Product-Market Fit** | Stability, learning | Proper microservices with owned DBs, Kafka events, basic observability |
+| **Scale** | Reliability, autonomy | Full service mesh, CQRS where needed, SLOs, auto-scaling |
+| **Platform** | Efficiency, leverage | Internal platform, golden paths, self-service infra, multi-region |
 
-Never build Phase 4 architecture for a Phase 1 problem.
+Start with microservices from day one — but keep the number small initially. Scale the number of services as domains emerge.
 
 ---
 
