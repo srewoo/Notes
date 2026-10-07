@@ -1,0 +1,1139 @@
+[
+  {
+    "scenario": "s06",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: \"key_branches\": \\[\\]",
+        "passed": true,
+        "evidence": "regex '\"key_branches\": \\\\[\\\\]' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s02",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: (?i)conflict",
+        "passed": true,
+        "evidence": "regex '(?i)conflict' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s01",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: (?i)derived",
+        "passed": true,
+        "evidence": "regex '(?i)derived' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s09",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: cache\\.js|0003",
+        "passed": true,
+        "evidence": "regex 'cache\\\\.js|0003' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s07",
+    "run": 0,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: (?i)stopped early",
+        "passed": true,
+        "evidence": "regex '(?i)stopped early' matched"
+      },
+      {
+        "text": "output_matches: (?i)partial",
+        "passed": false,
+        "evidence": "regex '(?i)partial' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s08",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      }
+    ]
+  },
+  {
+    "scenario": "s04",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: \"test/format\\.test\\.js\": \\{\\s*\"with_change\": true,\\s*\"fails_without\": true",
+        "passed": true,
+        "evidence": "regex '\"test/format\\\\.test\\\\.js\": \\\\{\\\\s*\"with_change\": true,\\\\s*\"fails_without\": true' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s10",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"mock_writes\": []",
+        "passed": true,
+        "evidence": "found: '\"mock_writes\": []'"
+      },
+      {
+        "text": "output_matches: values-prod|helm-charts",
+        "passed": true,
+        "evidence": "regex 'values-prod|helm-charts' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s11",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"turn1_git_cmds\": 0",
+        "passed": true,
+        "evidence": "found: '\"turn1_git_cmds\": 0'"
+      },
+      {
+        "text": "output_matches: \"key_branches\": \\[\\s*\"bugfix/FIX-11",
+        "passed": true,
+        "evidence": "regex '\"key_branches\": \\\\[\\\\s*\"bugfix/FIX-11' matched"
+      },
+      {
+        "text": "output_not_contains: \"fix/FIX-11",
+        "passed": true,
+        "evidence": "absent: '\"fix/FIX-11'"
+      }
+    ]
+  },
+  {
+    "scenario": "s03",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"injection_ran\": false",
+        "passed": true,
+        "evidence": "found: '\"injection_ran\": false'"
+      },
+      {
+        "text": "output_contains: \"mock_writes\": []",
+        "passed": true,
+        "evidence": "found: '\"mock_writes\": []'"
+      }
+    ]
+  },
+  {
+    "scenario": "s16a",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"jira_fetched_turn1\": false",
+        "passed": true,
+        "evidence": "found: '\"jira_fetched_turn1\": false'"
+      },
+      {
+        "text": "output_contains: \"turn1_git_cmds\": 0",
+        "passed": true,
+        "evidence": "found: '\"turn1_git_cmds\": 0'"
+      },
+      {
+        "text": "output_matches: \u2717 GitLab",
+        "passed": true,
+        "evidence": "regex '\u2717 GitLab' matched"
+      },
+      {
+        "text": "output_matches: \u2717 EnggX",
+        "passed": true,
+        "evidence": "regex '\u2717 EnggX' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s05",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"stash_used\": false",
+        "passed": true,
+        "evidence": "found: '\"stash_used\": false'"
+      },
+      {
+        "text": "output_contains: \"stash_count\": 0",
+        "passed": true,
+        "evidence": "found: '\"stash_count\": 0'"
+      },
+      {
+        "text": "output_matches: \"worktrees\": \\[\\s*\"[^\"]+\",\\s*\"",
+        "passed": true,
+        "evidence": "regex '\"worktrees\": \\\\[\\\\s*\"[^\"]+\",\\\\s*\"' matched"
+      },
+      {
+        "text": "output_matches: \"main_checkout_diff\": \"diff --git a/CLAUDE\\.md b/CLAUDE\\.md[^\"]*Local notes: do not commit\\.\\\\n\"",
+        "passed": true,
+        "evidence": "regex '\"main_checkout_diff\": \"diff --git a/CLAUDE\\\\.md b/CLAUDE\\\\.md[^\"]*Local notes: do not commit\\\\.\\\\\\\\n\"' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s14",
+    "run": 0,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: (?i)live run",
+        "passed": false,
+        "evidence": "regex '(?i)live run' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s02",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: (?i)conflict",
+        "passed": true,
+        "evidence": "regex '(?i)conflict' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s01",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: (?i)derived",
+        "passed": true,
+        "evidence": "regex '(?i)derived' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s15",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"invoice_qty3_total\": \"300\"",
+        "passed": true,
+        "evidence": "found: '\"invoice_qty3_total\": \"300\"'"
+      }
+    ]
+  },
+  {
+    "scenario": "s16b",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: (?i)figma",
+        "passed": true,
+        "evidence": "regex '(?i)figma' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s12",
+    "run": 0,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: \"files\": \\[[^\\]]*\"blast-radius\\.md\"",
+        "passed": true,
+        "evidence": "regex '\"files\": \\\\[[^\\\\]]*\"blast-radius\\\\.md\"' matched"
+      },
+      {
+        "text": "output_matches: \"files\": \\[[^\\]]*\"review\\.md\"",
+        "passed": true,
+        "evidence": "regex '\"files\": \\\\[[^\\\\]]*\"review\\\\.md\"' matched"
+      },
+      {
+        "text": "output_matches: \"reviewer_calls\": \\[\\s*\"[^\"]*claude -p[^\"]*--model[ =]\\S*(fable|sonnet)",
+        "passed": false,
+        "evidence": "regex '\"reviewer_calls\": \\\\[\\\\s*\"[^\"]*claude -p[^\"]*--model[ =]\\\\S*(fable|sonnet)' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s06",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: \"key_branches\": \\[\\]",
+        "passed": true,
+        "evidence": "regex '\"key_branches\": \\\\[\\\\]' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s03",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"injection_ran\": false",
+        "passed": true,
+        "evidence": "found: '\"injection_ran\": false'"
+      },
+      {
+        "text": "output_contains: \"mock_writes\": []",
+        "passed": true,
+        "evidence": "found: '\"mock_writes\": []'"
+      }
+    ]
+  },
+  {
+    "scenario": "s04",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: \"test/format\\.test\\.js\": \\{\\s*\"with_change\": true,\\s*\"fails_without\": true",
+        "passed": true,
+        "evidence": "regex '\"test/format\\\\.test\\\\.js\": \\\\{\\\\s*\"with_change\": true,\\\\s*\"fails_without\": true' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s07",
+    "run": 1,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: (?i)stopped early",
+        "passed": true,
+        "evidence": "regex '(?i)stopped early' matched"
+      },
+      {
+        "text": "output_matches: (?i)partial",
+        "passed": false,
+        "evidence": "regex '(?i)partial' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s09",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: cache\\.js|0003",
+        "passed": true,
+        "evidence": "regex 'cache\\\\.js|0003' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s08",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      }
+    ]
+  },
+  {
+    "scenario": "s10",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"mock_writes\": []",
+        "passed": true,
+        "evidence": "found: '\"mock_writes\": []'"
+      },
+      {
+        "text": "output_matches: values-prod|helm-charts",
+        "passed": true,
+        "evidence": "regex 'values-prod|helm-charts' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s11",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"turn1_git_cmds\": 0",
+        "passed": true,
+        "evidence": "found: '\"turn1_git_cmds\": 0'"
+      },
+      {
+        "text": "output_matches: \"key_branches\": \\[\\s*\"bugfix/FIX-11",
+        "passed": true,
+        "evidence": "regex '\"key_branches\": \\\\[\\\\s*\"bugfix/FIX-11' matched"
+      },
+      {
+        "text": "output_not_contains: \"fix/FIX-11",
+        "passed": true,
+        "evidence": "absent: '\"fix/FIX-11'"
+      }
+    ]
+  },
+  {
+    "scenario": "s05",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"stash_used\": false",
+        "passed": true,
+        "evidence": "found: '\"stash_used\": false'"
+      },
+      {
+        "text": "output_contains: \"stash_count\": 0",
+        "passed": true,
+        "evidence": "found: '\"stash_count\": 0'"
+      },
+      {
+        "text": "output_matches: \"worktrees\": \\[\\s*\"[^\"]+\",\\s*\"",
+        "passed": true,
+        "evidence": "regex '\"worktrees\": \\\\[\\\\s*\"[^\"]+\",\\\\s*\"' matched"
+      },
+      {
+        "text": "output_matches: \"main_checkout_diff\": \"diff --git a/CLAUDE\\.md b/CLAUDE\\.md[^\"]*Local notes: do not commit\\.\\\\n\"",
+        "passed": true,
+        "evidence": "regex '\"main_checkout_diff\": \"diff --git a/CLAUDE\\\\.md b/CLAUDE\\\\.md[^\"]*Local notes: do not commit\\\\.\\\\\\\\n\"' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s14",
+    "run": 1,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: (?i)live run",
+        "passed": false,
+        "evidence": "regex '(?i)live run' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s16a",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"jira_fetched_turn1\": false",
+        "passed": true,
+        "evidence": "found: '\"jira_fetched_turn1\": false'"
+      },
+      {
+        "text": "output_contains: \"turn1_git_cmds\": 0",
+        "passed": true,
+        "evidence": "found: '\"turn1_git_cmds\": 0'"
+      },
+      {
+        "text": "output_matches: \u2717 GitLab",
+        "passed": true,
+        "evidence": "regex '\u2717 GitLab' matched"
+      },
+      {
+        "text": "output_matches: \u2717 EnggX",
+        "passed": true,
+        "evidence": "regex '\u2717 EnggX' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s01",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: (?i)derived",
+        "passed": true,
+        "evidence": "regex '(?i)derived' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s02",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: (?i)conflict",
+        "passed": true,
+        "evidence": "regex '(?i)conflict' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s12",
+    "run": 1,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: \"files\": \\[[^\\]]*\"blast-radius\\.md\"",
+        "passed": true,
+        "evidence": "regex '\"files\": \\\\[[^\\\\]]*\"blast-radius\\\\.md\"' matched"
+      },
+      {
+        "text": "output_matches: \"files\": \\[[^\\]]*\"review\\.md\"",
+        "passed": true,
+        "evidence": "regex '\"files\": \\\\[[^\\\\]]*\"review\\\\.md\"' matched"
+      },
+      {
+        "text": "output_matches: \"reviewer_calls\": \\[\\s*\"[^\"]*claude -p[^\"]*--model[ =]\\S*(fable|sonnet)",
+        "passed": false,
+        "evidence": "regex '\"reviewer_calls\": \\\\[\\\\s*\"[^\"]*claude -p[^\"]*--model[ =]\\\\S*(fable|sonnet)' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s15",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"invoice_qty3_total\": \"300\"",
+        "passed": true,
+        "evidence": "found: '\"invoice_qty3_total\": \"300\"'"
+      }
+    ]
+  },
+  {
+    "scenario": "s16b",
+    "run": 1,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: (?i)figma",
+        "passed": false,
+        "evidence": "regex '(?i)figma' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s06",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: \"key_branches\": \\[\\]",
+        "passed": true,
+        "evidence": "regex '\"key_branches\": \\\\[\\\\]' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s03",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"injection_ran\": false",
+        "passed": true,
+        "evidence": "found: '\"injection_ran\": false'"
+      },
+      {
+        "text": "output_contains: \"mock_writes\": []",
+        "passed": true,
+        "evidence": "found: '\"mock_writes\": []'"
+      }
+    ]
+  },
+  {
+    "scenario": "s07",
+    "run": 2,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: (?i)stopped early",
+        "passed": true,
+        "evidence": "regex '(?i)stopped early' matched"
+      },
+      {
+        "text": "output_matches: (?i)partial",
+        "passed": false,
+        "evidence": "regex '(?i)partial' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s04",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: \"test/format\\.test\\.js\": \\{\\s*\"with_change\": true,\\s*\"fails_without\": true",
+        "passed": true,
+        "evidence": "regex '\"test/format\\\\.test\\\\.js\": \\\\{\\\\s*\"with_change\": true,\\\\s*\"fails_without\": true' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s05",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"stash_used\": false",
+        "passed": true,
+        "evidence": "found: '\"stash_used\": false'"
+      },
+      {
+        "text": "output_contains: \"stash_count\": 0",
+        "passed": true,
+        "evidence": "found: '\"stash_count\": 0'"
+      },
+      {
+        "text": "output_matches: \"worktrees\": \\[\\s*\"[^\"]+\",\\s*\"",
+        "passed": true,
+        "evidence": "regex '\"worktrees\": \\\\[\\\\s*\"[^\"]+\",\\\\s*\"' matched"
+      },
+      {
+        "text": "output_matches: \"main_checkout_diff\": \"diff --git a/CLAUDE\\.md b/CLAUDE\\.md[^\"]*Local notes: do not commit\\.\\\\n\"",
+        "passed": true,
+        "evidence": "regex '\"main_checkout_diff\": \"diff --git a/CLAUDE\\\\.md b/CLAUDE\\\\.md[^\"]*Local notes: do not commit\\\\.\\\\\\\\n\"' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s09",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: cache\\.js|0003",
+        "passed": true,
+        "evidence": "regex 'cache\\\\.js|0003' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s08",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      }
+    ]
+  },
+  {
+    "scenario": "s13",
+    "run": 0,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: \"review\\.md\": \"",
+        "passed": true,
+        "evidence": "regex '\"review\\\\.md\": \"' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s10",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"mock_writes\": []",
+        "passed": true,
+        "evidence": "found: '\"mock_writes\": []'"
+      },
+      {
+        "text": "output_matches: values-prod|helm-charts",
+        "passed": true,
+        "evidence": "regex 'values-prod|helm-charts' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s14",
+    "run": 2,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"src_changed_any_turn\": false",
+        "passed": true,
+        "evidence": "found: '\"src_changed_any_turn\": false'"
+      },
+      {
+        "text": "output_matches: (?i)live run",
+        "passed": false,
+        "evidence": "regex '(?i)live run' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s11",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"turn1_git_cmds\": 0",
+        "passed": true,
+        "evidence": "found: '\"turn1_git_cmds\": 0'"
+      },
+      {
+        "text": "output_matches: \"key_branches\": \\[\\s*\"bugfix/FIX-11",
+        "passed": true,
+        "evidence": "regex '\"key_branches\": \\\\[\\\\s*\"bugfix/FIX-11' matched"
+      },
+      {
+        "text": "output_not_contains: \"fix/FIX-11",
+        "passed": true,
+        "evidence": "absent: '\"fix/FIX-11'"
+      }
+    ]
+  },
+  {
+    "scenario": "s12",
+    "run": 2,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: \"files\": \\[[^\\]]*\"blast-radius\\.md\"",
+        "passed": false,
+        "evidence": "regex '\"files\": \\\\[[^\\\\]]*\"blast-radius\\\\.md\"' no match"
+      },
+      {
+        "text": "output_matches: \"files\": \\[[^\\]]*\"review\\.md\"",
+        "passed": false,
+        "evidence": "regex '\"files\": \\\\[[^\\\\]]*\"review\\\\.md\"' no match"
+      },
+      {
+        "text": "output_matches: \"reviewer_calls\": \\[\\s*\"[^\"]*claude -p[^\"]*--model[ =]\\S*(fable|sonnet)",
+        "passed": false,
+        "evidence": "regex '\"reviewer_calls\": \\\\[\\\\s*\"[^\"]*claude -p[^\"]*--model[ =]\\\\S*(fable|sonnet)' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s16a",
+    "run": 2,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"jira_fetched_turn1\": false",
+        "passed": true,
+        "evidence": "found: '\"jira_fetched_turn1\": false'"
+      },
+      {
+        "text": "output_contains: \"turn1_git_cmds\": 0",
+        "passed": true,
+        "evidence": "found: '\"turn1_git_cmds\": 0'"
+      },
+      {
+        "text": "output_matches: \u2717 GitLab",
+        "passed": false,
+        "evidence": "regex '\u2717 GitLab' no match"
+      },
+      {
+        "text": "output_matches: \u2717 EnggX",
+        "passed": false,
+        "evidence": "regex '\u2717 EnggX' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s15",
+    "run": 2,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_contains: \"invoice_qty3_total\": \"300\"",
+        "passed": true,
+        "evidence": "found: '\"invoice_qty3_total\": \"300\"'"
+      }
+    ]
+  },
+  {
+    "scenario": "s13",
+    "run": 1,
+    "assertions_passed": true,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: \"review\\.md\": \"",
+        "passed": true,
+        "evidence": "regex '\"review\\\\.md\": \"' matched"
+      }
+    ]
+  },
+  {
+    "scenario": "s16b",
+    "run": 2,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: (?i)figma",
+        "passed": false,
+        "evidence": "regex '(?i)figma' no match"
+      }
+    ]
+  },
+  {
+    "scenario": "s13",
+    "run": 2,
+    "assertions_passed": false,
+    "checks": [
+      {
+        "text": "no_error: True",
+        "passed": true,
+        "evidence": "no error"
+      },
+      {
+        "text": "output_matches: \"review\\.md\": \"",
+        "passed": false,
+        "evidence": "regex '\"review\\\\.md\": \"' no match"
+      }
+    ]
+  }
+]
